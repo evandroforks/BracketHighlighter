@@ -728,53 +728,53 @@
         "unmatched": {
             "icon": "question",
             "color": "region.redish",
-            "style": "thin_underline",
+            "style": "thin_underline"
         },
         // User defined region styles
         "curly": {
             "icon": "curly_bracket",
             "color": "region.purplish",
-            "style": "thin_underline",
+            "style": "thin_underline"
         },
         "round": {
             "icon": "round_bracket",
             "color": "region.yellowish",
-            "style": "thin_underline",
+            "style": "thin_underline"
         },
         "square": {
             "icon": "square_bracket",
             "color": "region.bluish",
-            "style": "thin_underline",
+            "style": "thin_underline"
         },
         "angle": {
             "icon": "angle_bracket",
             "color": "region.orangish",
-            "style": "thin_underline",
+            "style": "thin_underline"
         },
         "tag": {
             "icon": "tag",
             "color": "region.orangish",
-            "style": "thin_underline",
+            "style": "thin_underline"
         },
         "c_define": {
             "icon": "hash",
             "color": "region.yellowish",
-            "style": "thin_underline",
+            "style": "thin_underline"
         },
         "single_quote": {
             "icon": "single_quote",
             "color": "region.greenish",
-            "style": "thin_underline",
+            "style": "thin_underline"
         },
         "double_quote": {
             "icon": "double_quote",
             "color": "region.greenish",
-            "style": "thin_underline",
+            "style": "thin_underline"
         },
         "regex": {
             "icon": "star",
             "color": "region.greenish",
-            "style": "thin_underline",
-        },
-    },
+            "style": "thin_underline"
+        }
+    }
 }
