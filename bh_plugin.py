@@ -7,12 +7,11 @@ License: MIT
 import sublime
 import sublime_plugin
 from os.path import normpath, join
-import imp
 from collections import namedtuple
 import sys
 import traceback
 import re
-from BracketHighlighter.bh_logging import log
+from .bh_logging import log
 
 
 class Payload(object):
@@ -31,7 +30,7 @@ class Payload(object):
         cls.args = None
 
 
-class BracketRegion (namedtuple('BracketRegion', ['begin', 'end'], verbose=False)):
+class BracketRegion (namedtuple('BracketRegion', ['begin', 'end'])):
     """Bracket regions for plugins."""
 
     def move(self, begin, end):
@@ -83,6 +82,17 @@ def load_modules(obj, loaded):
         raise
 
 
+def new_module(name):
+    """Create a new module."""
+
+    if sys.version_info < (3, 4):
+        import imp
+        return imp.new_module(name)
+
+    import types
+    return types.ModuleType(name)
+
+
 def _import_module(module_name, loaded=None):
     """
     Import the module.
@@ -100,7 +110,7 @@ def _import_module(module_name, loaded=None):
     if loaded is not None and module_name in loaded:
         module = sys.modules[module_name]
     else:
-        module = imp.new_module(module_name)
+        module = new_module(module_name)
         sys.modules[module_name] = module
         exec(
             compile(
@@ -134,7 +144,7 @@ class BracketPluginRunCommand(sublime_plugin.TextCommand):
             print("BracketHighlighter: Plugin Run Error:\n%s" % str(traceback.format_exc()))
 
 
-class BracketPlugin(object):
+class BracketPlugin:
     """Class for preparing and running plugins."""
 
     def __init__(self, plugin, loaded):
@@ -189,7 +199,7 @@ class BracketPlugin(object):
         return left, right, selection, nobracket, refresh_match
 
 
-class BracketPluginCommand(object):
+class BracketPluginCommand:
     """Bracket Plugin base class."""
 
     def run(self, bracket, content, selection):

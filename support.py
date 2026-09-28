@@ -5,7 +5,7 @@ import textwrap
 import webbrowser
 import re
 
-__version__ = "2.27.5"
+__version__ = "2.33.1"
 __pc_name__ = 'BracketHighlighter'
 
 CSS = '''
@@ -35,7 +35,7 @@ frontmatter = {
                 "repo": "BracketHighlighter"
             }
         },
-        "pymdownx.extrarawhtml",
+        "markdown.extensions.md_in_html",
         "pymdownx.keys",
         {"pymdownx.escapeall": {"hardbreak": True, "nbsp": True}},
         # Sublime doesn't support superscript, so no ordinal numbers
@@ -95,27 +95,9 @@ class BracketHighlighterSupportInfoCommand(sublime_plugin.ApplicationCommand):
 
         try:
             import backrefs
-            info["backrefs_version"] = format_version(backrefs, 'version')
+            info["backrefs_version"] = format_version(backrefs, '__version__')
         except Exception:
             info["backrefs_version"] = 'Version could not be acquired!'
-
-        try:
-            import markdown
-            info["markdown_version"] = format_version(markdown, 'version')
-        except Exception:
-            info["markdown_version"] = 'Version could not be acquired!'
-
-        try:
-            import jinja2
-            info["jinja_version"] = format_version(jinja2, '__version__')
-        except Exception:
-            info["jinja_version"] = 'Version could not be acquired!'
-
-        try:
-            import pygments
-            info["pygments_version"] = format_version(pygments, '__version__')
-        except Exception:
-            info["pygments_version"] = 'Version could not be acquired!'
 
         msg = textwrap.dedent(
             """\
@@ -126,9 +108,6 @@ class BracketHighlighterSupportInfoCommand(sublime_plugin.ApplicationCommand):
             - Install via PC: %(pc_install)s
             - mdpopups ver.: %(mdpopups_version)s
             - backrefs ver.: %(backrefs_version)s
-            - markdown ver.: %(markdown_version)s
-            - pygments ver.: %(pygments_version)s
-            - jinja2 ver.: %(jinja_version)s
             """ % info
         )
 
@@ -163,9 +142,8 @@ class BracketHighlighterDocCommand(sublime_plugin.WindowCommand):
 
         try:
             import mdpopups
-            import pymdownx
-            has_phantom_support = (mdpopups.version() >= (1, 10, 0)) and (int(sublime.version()) >= 3124)
-            fmatter = mdpopups.format_frontmatter(frontmatter) if pymdownx.version_info[:3] >= (4, 3, 0) else ''
+            has_phantom_support = (mdpopups.version() >= (1, 10, 0))
+            fmatter = mdpopups.format_frontmatter(frontmatter)
         except Exception:
             fmatter = ''
             has_phantom_support = False
@@ -202,10 +180,10 @@ class BracketHighlighterChangesCommand(sublime_plugin.WindowCommand):
         """Show the changelog in a new view."""
         try:
             import mdpopups
-            import pymdownx
-            has_phantom_support = (mdpopups.version() >= (1, 10, 0)) and (int(sublime.version()) >= 3124)
-            fmatter = mdpopups.format_frontmatter(frontmatter) if pymdownx.version_info[:3] >= (4, 3, 0) else ''
-        except Exception:
+            has_phantom_support = (mdpopups.version() >= (1, 10, 0))
+            fmatter = mdpopups.format_frontmatter(frontmatter)
+        except Exception as e:
+            print(e)
             fmatter = ''
             has_phantom_support = False
 

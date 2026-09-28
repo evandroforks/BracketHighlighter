@@ -9,13 +9,14 @@ import sublime_plugin
 from os.path import basename, splitext
 from time import time, sleep
 import threading
+from queue import Queue
 import traceback
-import BracketHighlighter.bh_plugin as bh_plugin
-import BracketHighlighter.bh_search as bh_search
-import BracketHighlighter.bh_regions as bh_regions
-import BracketHighlighter.bh_rules as bh_rules
-import BracketHighlighter.bh_popup as bh_popup
-from BracketHighlighter.bh_logging import debug, log
+from . import bh_plugin
+from . import bh_search
+from . import bh_regions
+from . import bh_rules
+from . import bh_popup
+from .bh_logging import debug, log
 
 if 'bh_thread' not in globals():
     bh_thread = None
@@ -32,7 +33,7 @@ HIGH_VISIBILITY = False
 ####################
 # Match Code
 ####################
-class BhCore(object):
+class BhCore:
     """Bracket matching class."""
 
     plugin_reload = False
@@ -112,6 +113,8 @@ class BhCore(object):
             if 'type' in plugin:
                 for target in plugin["type"]:
                     self.plugin_targets.add(target)
+            else:
+                self.plugin_targets.add('__all__')
 
         # Region selection, highlight, management
         self.regions = bh_regions.BhRegion(alter_select, count_lines)
@@ -246,13 +249,22 @@ class BhCore(object):
         if bracket.validate is not None:
             try:
                 match = bracket.validate(
+                    self.view,
                     bracket.name,
                     bh_plugin.BracketRegion(b.begin, b.end),
                     bracket_type,
                     self.search.get_buffer()
                 )
-            except Exception:
-                log("Plugin Bracket Find Error:\n%s" % str(traceback.format_exc()))
+            except TypeError:
+                try:
+                    match = bracket.validate(
+                        bracket.name,
+                        bh_plugin.BracketRegion(b.begin, b.end),
+                        bracket_type,
+                        self.search.get_buffer()
+                    )
+                except Exception:
+                    log("Plugin Bracket Find Error:\n%s" % str(traceback.format_exc()))
         return match
 
     def compare(self, first, second, scope_bracket=False):
@@ -351,7 +363,7 @@ class BhCore(object):
     ####################
     # Matching
     ####################
-    def match(self, view, force_match=True, clone_view=False):
+    def match(self, view, force_match=True):
         """Preform matching brackets surround the selection(s)."""
 
         if view is None:
@@ -359,15 +371,9 @@ class BhCore(object):
 
         # Ensure nothing else calls BH until done
         view.settings().set("bracket_highlighter.busy", True)
-        if clone_view:
-            view.settings().set("bracket_highlighter.clone", view.id())
-        elif view.id() == view.settings().set("bracket_highlighter.clone", -1):
-            # Catch situations for a manual command invokes this and it is not known this is a clone.
-            clone_view = True
-            view.settings().set("bracket_highlighter.clone", view.id())
 
-        regions_key = "bracket_highlighter.clone_regions" if clone_view else "bracket_highlighter.regions"
-        locations_key = "bracket_highlighter.clone_locations" if clone_view else "bracket_highlighter.locations"
+        regions_key = "bracket_highlighter.regions"
+        locations_key = "bracket_highlighter.locations"
 
         # Abort if disabled
         if not GLOBAL_ENABLE:
@@ -395,7 +401,7 @@ class BhCore(object):
         if not self.ignore_threshold and self.kill_highlight_on_threshold:
             if self.use_selection_threshold and num_sels > self.auto_selection_threshold:
                 self.regions.reset(view, num_sels)
-                self.regions.highlight(HIGH_VISIBILITY, clone_view)
+                self.regions.highlight(HIGH_VISIBILITY)
                 view.settings().set("bracket_highlighter.busy", False)
                 return
 
@@ -437,7 +443,7 @@ class BhCore(object):
                 multi_select_count += 1
 
         # Highlight, focus, and display lines etc.
-        self.regions.highlight(HIGH_VISIBILITY, clone_view)
+        self.regions.highlight(HIGH_VISIBILITY)
 
         # Free up BH
         self.search = None
@@ -445,6 +451,7 @@ class BhCore(object):
 
         # Setup thread to do another match to refresh the match
         if self.refresh_match:
+            start_task()
             bh_thread.type = BH_MATCH_TYPE_SELECTION
             bh_thread.modified = True
             bh_thread.time = time()
@@ -786,8 +793,7 @@ class BhOffscreenPopupCommand(sublime_plugin.TextCommand):
 
         # Get relative bracket regions for point
         if point is not None:
-            clone_view = self.view.id() == self.view.settings().get('bracket_highlighter.clone', -1)
-            locations_key = 'bracket_highlighter.clone_locations' if clone_view else 'bracket_highlighter.locations'
+            locations_key = 'bracket_highlighter.locations'
             locations = self.view.settings().get(locations_key, {})
             for k, v in locations.get('unmatched', {}).items():
                 if v[0] <= point <= v[1]:
@@ -989,8 +995,7 @@ class BhListenerCommand(sublime_plugin.EventListener):
             index = None
             unmatched = False
             if hover_zone == sublime.HOVER_TEXT:
-                clone_view = view.id() == view.settings().get('bracket_highlighter.clone', -1)
-                locations_key = 'bracket_highlighter.clone_locations' if clone_view else 'bracket_highlighter.locations'
+                locations_key = 'bracket_highlighter.locations'
                 locations = view.settings().get(locations_key, {})
                 for k, v in locations.get('unmatched', {}).items():
                     if v[0] <= point <= v[1]:
@@ -1033,6 +1038,7 @@ class BhListenerCommand(sublime_plugin.EventListener):
 
         if self.ignore_event(view):
             return
+        start_task()
         bh_thread.type = BH_MATCH_TYPE_EDIT
         bh_thread.modified = True
         bh_thread.view = view
@@ -1054,12 +1060,6 @@ class BhListenerCommand(sublime_plugin.EventListener):
             if settings.get('bracket_highlighter.regions'):
                 for region_key in view.settings().get("bracket_highlighter.regions", []):
                     view.erase_regions(region_key)
-                view.settings().set('bracket_highlighter.clone_locations', {})
-            # Clone views (settings are shared between normal and cloned)
-            if settings.get('bracket_highlighter.clone_regions'):
-                for region_key in view.settings().get("bracket_highlighter.clone_regions", []):
-                    view.erase_regions(region_key)
-                view.settings().set('bracket_highlighter.clone_locations', {})
 
     def on_activated(self, view):
         """Highlight brackets when the view gains focus again."""
@@ -1070,7 +1070,6 @@ class BhListenerCommand(sublime_plugin.EventListener):
         if self.ignore_event(view):
             return
         bh_thread.type = BH_MATCH_TYPE_SELECTION
-        bh_thread.last_active = view
         bh_thread.view = view
         sublime.set_timeout(bh_thread.payload, 0)
 
@@ -1086,6 +1085,7 @@ class BhListenerCommand(sublime_plugin.EventListener):
         if now - bh_thread.time > bh_thread.wait_time:
             sublime.set_timeout(bh_thread.payload, 0)
         else:
+            start_task()
             bh_thread.modified = True
             bh_thread.time = now
 
@@ -1115,8 +1115,8 @@ class BhThread(threading.Thread):
         """Setup the thread."""
 
         self.reset()
+        self.queue = Queue()
         self.view = None
-        self.last_active = None
         threading.Thread.__init__(self)
 
     def reset(self):
@@ -1124,6 +1124,7 @@ class BhThread(threading.Thread):
 
         self.wait_time = 0.12
         self.time = time()
+        self.queue = Queue()
         self.modified = False
         self.type = BH_MATCH_TYPE_SELECTION
         self.ignore_all = False
@@ -1134,9 +1135,8 @@ class BhThread(threading.Thread):
 
         self.modified = False
         self.ignore_all = True
-        is_clone = self.view is None
-        if bh_match is not None:
-            bh_match(self.last_active if is_clone else self.view, self.type == BH_MATCH_TYPE_EDIT, is_clone)
+        if bh_match is not None and self.view is not None:
+            bh_match(self.view, self.type == BH_MATCH_TYPE_EDIT)
         self.view = None
         self.ignore_all = False
         self.time = time()
@@ -1145,6 +1145,7 @@ class BhThread(threading.Thread):
         """Kill thread."""
 
         self.abort = True
+        self.queue.put(True)
         while self.is_alive():
             pass
         self.reset()
@@ -1152,15 +1153,27 @@ class BhThread(threading.Thread):
     def run(self):
         """Thread loop."""
 
+        task = False
         while not self.abort:
-            if self.modified is True and time() - self.time > self.wait_time:
-                sublime.set_timeout(self.payload, 0)
-            sleep(0.5)
+            task = self.queue.get()
+            while task and not self.abort:
+                if self.modified is True and time() - self.time > self.wait_time:
+                    sublime.set_timeout(self.payload, 0)
+                    task = False
+                sleep(0.5)
 
 
 ####################
 # Loading
 ####################
+
+def start_task():
+    """Start task."""
+
+    if bh_thread.is_alive():
+        bh_thread.queue.put(True)
+
+
 def init_bh_match():
     """Initialize the match object."""
 

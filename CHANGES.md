@@ -1,194 +1,272 @@
-# BracketHighlighter 2.27.5
+# BracketHighlighter
 
-- **FIX**: Fix issue where bracket context code blocks in popups sometimes are recognized as Jinja2 template variables.
-- **FIX**: Fix internal clone view cleanup.
-- **FIX**: Fix bad clone reference.
-- **FIX**: `on_hover` should not occur if `bracket_highlighter.ignore` is set in the view.
+## 2.33.1
 
-# BracketHighlighter 2.27.4
+-   **FIX**. Fix errors on latest Sublime version.
 
-Jun 14, 2018
+## 2.33.0
 
-- **FIX**: Avoid targeting common `HERDOC` syntax with angle brackets. #482
+-   **NEW**: Release special branch for Sublime Text 4201+.
 
-# BracketHighlighter 2.27.3
+## 2.32.4
 
-Apr 21, 2018
+-   **FIX**: Fixes for Sublime beta using Python 3.13.
 
-- **FIX**: Selecting "no threshold" search from popup quickly reverts back to unmatched.
-- **FIX**: Backtick string support extended to JavaScript.
+## 2.32.3
 
-# BracketHighlighter 2.27.2
+-   **FIX**: Fix example keymap for selection.
+-   **FIX**: Use typing dependency.
 
-Mar 20, 2018
+## 2.32.2
 
-- **FIX**: `C#` interpolated strings !468.
-- **FIX**: Fix C/C++ preprocessor highlighting !474.
-- **FIX**: Only highlight the keyword in C/C++ preprocessors af22600cd23bd3c15a1a0f6fc54041e6d96b3dd3.
+-   **FIX**: Fix bracket highlighting in Bash due to recent changes in syntax language.
 
-# BracketHighlighter 2.27.1
+## 2.32.1
 
-Feb 4, 2018
+-   **FIX**: Remove verbose parameter from named tubple which causes issues with Python 3.8.
 
-- **FIX**: Fix Lua loops by avoiding `while` and `from` and just highlighting `do` #466.
+## 2.32.0
 
-# BracketHighlighter 2.27.0
+-   **NEW**: Opt in to Python 3.8.
+-   **FIX**: Fix issues with "SINUMERIK840D" language.
 
-Nov 19, 2017
+## 2.31.5
 
-- **NEW**: Add option to always show the bracket popup on bracket hover #457.
-- **FIX**: Fix clone views not properly supported #454.
-- **FIX**: Improvements to Ruby conditional matching #452.
+-   **FIX**: Fix endless Ruby method case.
 
-# BracketHighlighter 2.26.0
+## 2.31.4
 
-Nov 5, 2017
+-   **FIX**: Fix PHP arrow case that could break bracket highlighting.
 
-- **NEW**: Added new configuration `user_bracket_styles` to allow a user to override specific rules or just part of a  
-specific rule instead of copying all of `bracket_styles` #448.
-- **NEW**: Add colorization with region-ish scopes for Sublime builds 3148+ #448.
-- **FIX**: Ruby issue with conditionals immediately followed after return keyword #425.
-- **FIX**: PHP issue for arrows (`$var->prop`) #446.
+## 2.31.3
 
-# BracketHighlighter 2.25.2
+-   **FIX**: Fix some Bash cases.
 
-Oct 24, 2017
+## 2.31.2
 
-- **FIX**: Update tag attribute pattern.
-- **FIX**: Add SVG self closing tags.
-- **FIX**: Temporarily use `thin_underline` style to mitigate issue #443.
+-   **FIX**: Fix performance with content highlight bar.
 
-# BracketHighlighter 2.25.1
+## 2.31.1
 
-Oct 8, 2017
+-   **FIX**: Fix issue with CMFL bracket matching.
 
-- **FIX**: Update dependencies.
+## 2.31
 
-# BracketHighlighter 2.25.0
+-   **NEW**: Add support for Ruby endless methods.
+-   **NEW**: `validate` plugin method has been updated to accept a View, but will fallback to the legacy approach
+    for backwards compatibility.
 
-Aug 12, 2017
+## 2.30.1
 
-- **FIX**: Quick start image links.
-- **FIX**: Allow Markdown related brackets to work in Markdown Extended.
-- **FIX**: Allow `HTML (Jinja2)` to work in HTML.
-- **NEW**: Add Markdown `` ` `` to swap and wrap.
-- **NEW**: Add commonly used commands to the command panel (documents and settings) #419.
+-   **FIX**: Fix PHP angle matching rule.
 
-# BracketHighlighter 2.24.2
+## 2.30.0
 
-June 15, 2017
+-   **NEW**: When defining key bindings `type` is now defaulted to `['__all__']` if not set.
+-   **FIX**: Ensure Jinja2 support for works for the Jinja2 package (support existed for some older package).
 
-- **FIX**: Avoid things like `->` in PHP due to new Sublime default syntax changes #417.
-- **FIX**: Add support for Python f-strings.
+## 2.29.4
 
-# BracketHighlighter 2.24.1
+-   **FIX**: Fix for "Ruby on Rails" embedded in HTML 4130+.
 
-May 26, 2017
+## 2.29.3
 
-- **FIX**: Random regions failure.
-- **FIX**: Lua keyword match at beginning of line.
+-   **FIX**: Fix "Ruby on Rails" for Sublime build 4130+.
+-   **FIX**: Quotes matching for SQL string in PHP.
 
-# BracketHighlighter 2.24.0
+## 2.29.2
 
-May 10, 2017
+-   **FIX**: Adjustments for latest syntax changes in default JavaScript and HTML in Sublime Text. Fixes issues with  
+    JavaScript angle brackets.
+-   **FIX**: Elixir end block detection.
 
-- **NEW**: Popup/Phantom support limited to 3124+ moving forward to prepare for `mdpopups` 2.0 that will drop legacy  
-support for old, early implementation of popups and phantoms.
-- **NEW**: No longer try and force dependency updates.  Leave it up to Package Control (whether they do it or not).
-- **NEW**: CSS adjustments to popups.
-- **FIX**: Fix tag matching corner case #409.
+## 2.29.1
 
-# BracketHighlighter 2.23.3
+-   **FIX**: PHP bracket matching issue.
+-   **FIX**: Fix Lua keyword issue.
 
-Jan 24, 2017
+## 2.29.0
 
-- **FIX**: Fix error `ImportError: No module named 'yaml'` #400.
+-   **NEW**: Enhance bracket content select feature with `extend` parameter.
+-   **FIX**: Bash switch case highlighting on ST3.
+-   **FIX**: Fix custom popup color handling.
 
-# BracketHighlighter 2.23.2
+## 2.28.1
 
-Jan 23, 2017
+-   **FIX**: Handle HTML attributes even when there are no spaces between them.
 
-- **FIX**: Add backtick quote support for ruby and shell script syntaxes d884e8ab7aa69477c1af5d29cef24589efaf2b8e.
-- **FIX**: Fix console noise on global disable #397.
+## 2.28.0
 
-# BracketHighlighter 2.23.1
+-   **NEW**: Rename `language_filter` options `whitelist` and `blacklist` to `allowlist` and `blocklist` respectively.
+-   **NEW**: Add global option `gutter_icons` to control enabling or disabling icons.
 
-Nov 25, 2016
+## 2.27.10
 
-- **FIX**: Rule position - zero is a valid position #387.
-- **FIX**: Protect against race condition due to Sublime bug #390.
+-   **FIX**: Handle certain regular expression compilation failures in a more graceful way.
 
-# BracketHighlighter 2.23.0
+## 2.27.9
 
-Nov 16, 2016
+-   **FIX**: Remove old clone workaround as this issue will be fixed upstream in Sublime Text 4 builds.
 
-- **NEW**: Add links in menu to documentation and issues.
-- **NEW**: Provide new local quickstart guide from the menu.
-- **NEW**: Breaking change to `bh_tag.sublime-settings`. `tag_mode` is now an ordered list of dictionaries.  
-`self_closing_patterns` and `single_tag_patterns` and replaced with `optional_tag_patterns`,  
-`void_tag_patterns`, and `self_closing_tag_patterns`.
-- **NEW**: Add new `first_line` rule for determining tag mode.
-- **NEW**: New XML tag mode and better XHTML mode.
-- **NEW**: Better special tag logic which handles optional tags, void tags, and self closing tags better. #384
+## 2.27.8
 
-# BracketHighlighter 2.22.1
+-   **FIX**: Content align bug.
 
-Nov 5, 2016
+## 2.27.7
 
-- **FIX**: Fix changelog links
+-   **FIX**: Update support to include OCaml comment support.
+-   **FIX**: Fix avoiding round brackets in shell case statements.
+-   **FIX**: Thread adjustments that allow BracketHighlighter to go completely idle when Sublime Text is idle.
+-   **FIX**: Fix Ruby interpolated strings.
+-   **FIX**: Fix optional tags for `option` and `optgroup`.
 
-# BracketHighlighter 2.22.0
+## 2.27.6
 
-Oct 30, 2016
+-   **FIX**: Fix issue where HTML style attribute quotes where not highlighted due to syntax definition changes.
+-   **FIX**: Add support for `@` in HTML attributes.
 
-- **NEW**: Manual command to show offscreen bracket popup.  Can be invoked when cursor is anywhere between target  
-bracket #378.
-- **NEW**: When selecting the "Match brackets without threshold" link on the unmatched bracket popup, reshow the  
-offscreen popup.
-- **NEW**: Add support for "SINUMERIK840D" language #379.
+## 2.27.5
 
-# BracketHighlighter 2.21.6
+-   **FIX**: Fix issue where bracket context code blocks in popups sometimes are recognized as Jinja2 template  
+    variables.
+-   **FIX**: Fix internal clone view cleanup.
+-   **FIX**: Fix bad clone reference.
+-   **FIX**: `on_hover` should not occur if `bracket_highlighter.ignore` is set in the view.
 
-Oct 19, 2016
+## 2.27.4
 
-- **FIX**: Fix PHP conditional #366.
-- **FIX**: No line wrapping in code snippets in popups.
+-   **FIX**: Avoid targeting common `HERDOC` syntax with angle brackets. #482
 
-# BracketHighlighter 2.21.5
+## 2.27.3
 
-Aug 21, 2016
+-   **FIX**: Selecting "no threshold" search from popup quickly reverts back to unmatched.
+-   **FIX**: Backtick string support extended to JavaScript.
 
-- **FIX**: Fix a break caused by 2.21.4 #364.
-- **FIX**: Fix CSS in changelog
+## 2.27.2
 
-# BracketHighlighter 2.21.4
+-   **FIX**: `C#` interpolated strings !468.
+-   **FIX**: Fix C/C++ preprocessor highlighting !474.
+-   **FIX**: Only highlight the keyword in C/C++ preprocessors af22600cd23bd3c15a1a0f6fc54041e6d96b3dd3.
 
-Aug 21, 2016
+## 2.27.1
 
-- **FIX**: Changelog command now works for older ST3 versions.
+-   **FIX**: Fix Lua loops by avoiding `while` and `from` and just highlighting `do` #466.
 
-# BracketHighlighter 2.21.3
+## 2.27.0
 
-Aug 1, 2016
+-   **NEW**: Add option to always show the bracket popup on bracket hover #457.
+-   **FIX**: Fix clone views not properly supported #454.
+-   **FIX**: Improvements to Ruby conditional matching #452.
 
-- **FIX**: Don't fail if mdpopups was not installed on old Sublime version.
+## 2.26.0
 
-# BracketHighlighter 2.21.2
+-   **NEW**: Added new configuration `user_bracket_styles` to allow a user to override specific rules or just part of a  
+    specific rule instead of copying all of `bracket_styles` #448.
+-   **NEW**: Add colorization with region-ish scopes for Sublime builds 3148+ #448.
+-   **FIX**: Ruby issue with conditionals immediately followed after return keyword #425.
+-   **FIX**: PHP issue for arrows (`$var->prop`) #446.
 
-Aug 1, 2016
+## 2.25.2
 
-- **FIX**: Fix changelog typo :).
+-   **FIX**: Update tag attribute pattern.
+-   **FIX**: Add SVG self closing tags.
+-   **FIX**: Temporarily use `thin_underline` style to mitigate issue #443.
 
-# BracketHighlighter 2.21.1
+## 2.25.1
 
-Aug 1, 2016
+-   **FIX**: Update dependencies.
 
-- **NEW**: Message to not freak people out :).
+## 2.25.0
 
-# BracketHighlighter 2.21.0
+-   **FIX**: Quick start image links.
+-   **FIX**: Allow Markdown related brackets to work in Markdown Extended.
+-   **FIX**: Allow `HTML (Jinja2)` to work in HTML.
+-   **NEW**: Add Markdown `` ` `` to swap and wrap.
+-   **NEW**: Add commonly used commands to the command panel (documents and settings) #419.
 
-Jul 31, 2016
+## 2.24.2
 
-- **NEW**: Require mdpopups 1.9.0.
-- **NEW**: New changelog command.
-- **NEW**: Add support for new LaTeX syntax.
+-   **FIX**: Avoid things like `->` in PHP due to new Sublime default syntax changes #417.
+-   **FIX**: Add support for Python f-strings.
+
+## 2.24.1
+
+-   **FIX**: Random regions failure.
+-   **FIX**: Lua keyword match at beginning of line.
+
+## 2.24.0
+
+-   **NEW**: Popup/Phantom support limited to 3124+ moving forward to prepare for `mdpopups` 2.0 that will drop legacy  
+    support for old, early implementation of popups and phantoms.
+-   **NEW**: No longer try and force dependency updates.  Leave it up to Package Control (whether they do it or not).
+-   **NEW**: CSS adjustments to popups.
+-   **FIX**: Fix tag matching corner case #409.
+
+## 2.23.3
+
+-   **FIX**: Fix error `ImportError: No module named 'yaml'` #400.
+
+## 2.23.2
+
+-   **FIX**: Add backtick quote support for ruby and shell script syntaxes d884e8ab7aa69477c1af5d29cef24589efaf2b8e.
+-   **FIX**: Fix console noise on global disable #397.
+
+## 2.23.1
+
+-   **FIX**: Rule position - zero is a valid position #387.
+-   **FIX**: Protect against race condition due to Sublime bug #390.
+
+## 2.23.0
+
+-   **NEW**: Add links in menu to documentation and issues.
+-   **NEW**: Provide new local quickstart guide from the menu.
+-   **NEW**: Breaking change to `bh_tag.sublime-settings`. `tag_mode` is now an ordered list of dictionaries.  
+    `self_closing_patterns` and `single_tag_patterns` and replaced with `optional_tag_patterns`,  
+    `void_tag_patterns`, and `self_closing_tag_patterns`.
+-   **NEW**: Add new `first_line` rule for determining tag mode.
+-   **NEW**: New XML tag mode and better XHTML mode.
+-   **NEW**: Better special tag logic which handles optional tags, void tags, and self closing tags better. #384
+
+## 2.22.1
+
+-   **FIX**: Fix changelog links
+
+## 2.22.0
+
+-   **NEW**: Manual command to show offscreen bracket popup.  Can be invoked when cursor is anywhere between target  
+    bracket #378.
+-   **NEW**: When selecting the "Match brackets without threshold" link on the unmatched bracket popup, reshow the  
+    offscreen popup.
+-   **NEW**: Add support for "SINUMERIK840D" language #379.
+
+## 2.21.6
+
+-   **FIX**: Fix PHP conditional #366.
+-   **FIX**: No line wrapping in code snippets in popups.
+
+## 2.21.5
+
+-   **FIX**: Fix a break caused by 2.21.4 #364.
+-   **FIX**: Fix CSS in changelog
+
+## 2.21.4
+
+-   **FIX**: Changelog command now works for older ST3 versions.
+
+## 2.21.3
+
+-   **FIX**: Don't fail if mdpopups was not installed on old Sublime version.
+
+## 2.21.2
+
+-   **FIX**: Fix changelog typo :).
+
+## 2.21.1
+
+-   **NEW**: Message to not freak people out :).
+
+## 2.21.0
+
+-   **NEW**: Require mdpopups 1.9.0.
+-   **NEW**: New changelog command.
+-   **NEW**: Add support for new LaTeX syntax.

@@ -46,12 +46,6 @@ def clear_all_regions():
             view.settings().set(
                 'bracket_highlighter.locations', {'open': {}, 'close': {}, 'unmatched': {}, 'icon': {}}
             )
-            # Clone views (settings are shared between normal and cloned)
-            for region_key in view.settings().get("bracket_highlighter.clone_regions", []):
-                view.erase_regions(region_key)
-            view.settings().set(
-                'bracket_highlighter.clone_locations', {'open': {}, 'close': {}, 'unmatched': {}, 'icon': {}}
-            )
 
 
 def select_bracket_style(option, minimap):
@@ -163,7 +157,7 @@ def get_bracket_regions(settings, minimap):
         yield k, StyleDefinition(k, v, default_settings, icon_path, minimap)
 
 
-class StyleDefinition(object):
+class StyleDefinition:
     """Styling definition."""
 
     def __init__(self, name, style, default_highlight, icon_path, minimap):
@@ -195,7 +189,7 @@ class StyleDefinition(object):
         self.content_selections = []
 
 
-class BhRegion(object):
+class BhRegion:
     """Class for handling highlight regions."""
 
     def __init__(self, alter_select, count_lines):
@@ -210,6 +204,7 @@ class BhRegion(object):
         self.hv_underline = self.hv_style & sublime.DRAW_EMPTY_AS_OVERWRITE
         self.hv_color = settings.get("high_visibility_color", HV_RSVD_VALUES[1])
         self.no_multi_select_icons = bool(settings.get("no_multi_select_icons", False))
+        self.gutter_icons = bool(settings.get("gutter_icons", True))
         self.bracket_regions = {}
         self.alter_select = alter_select
         for style, bracket_region in get_bracket_regions(settings, minimap):
@@ -353,14 +348,13 @@ class BhRegion(object):
             count = 0
             # Calculate column index of where text starts for line
             # containing opening bracket
-            for x in range(start_pt, start_pt + end_pt):
-                char = self.view.substr(x)
+            for char in self.view.substr(sublime.Region(start_pt, start_pt + end_pt)):
                 if char == "\t":
                     # Track all tabs
                     tabs += 1
                 elif char != " ":
                     # Calculate column on first non-whitespace character
-                    remainder = count & tab_size
+                    remainder = count % tab_size
                     tab_aligned = int(count / tab_size)
                     if remainder and tabs:
                         # Index of first non-whitespace character.
@@ -385,8 +379,7 @@ class BhRegion(object):
                 # Loop through all lines after the first.
                 # Calculate the true column position where the bar should
                 # be drawn.  Calculation should account for tabs.
-                for y in range(start_pt, start_pt + end_pt):
-                    char = self.view.substr(y)
+                for char in self.view.substr(sublime.Region(start_pt, start_pt + end_pt)):
                     if char == '\x00':
                         # Extended past the file's end
                         actual_pt += 1
@@ -416,12 +409,10 @@ class BhRegion(object):
                     if self.view.rowcol(actual_pt)[0] == x and actual_pt not in bracket_locations:
                         if x == last_line:
                             # Draw bar on last line if text comes before bracket
-                            include = False
-                            for y in range(actual_pt, right.begin):
-                                if self.view.substr(y) not in whitespace:
-                                    include = True
-                                    break
-                            if include:
+                            if any(
+                                char not in whitespace
+                                for char in self.view.substr(sublime.Region(actual_pt, right.begin))
+                            ):
                                 bracket.content_selections.append(sublime.Region(actual_pt))
                         else:
                             # Content line; draw bar
@@ -433,12 +424,10 @@ class BhRegion(object):
                 if pt not in bracket_locations:
                     if x == last_line:
                         # Draw bar on last line if text comes before bracket
-                        include = False
-                        for y in range(pt, right.begin):
-                            if self.view.substr(y) not in whitespace:
-                                include = True
-                                break
-                        if include:
+                        if any(
+                            char not in whitespace
+                            for char in self.view.substr(sublime.Region(pt, right.begin))
+                        ):
                             bracket.content_selections.append(sublime.Region(pt))
                     else:
                         # Content line; draw bar
@@ -525,14 +514,14 @@ class BhRegion(object):
                 )
             regions.append(name)
 
-    def highlight(self, high_visibility, clone_view):
+    def highlight(self, high_visibility):
         """Highlight all bracket regions."""
 
         self.change_sel()
 
         # Sometimes Sublime is in a weird state and returns None instead of the default we ask for
-        regions_key = "bracket_highlighter.clone_regions" if clone_view else "bracket_highlighter.regions"
-        locations_key = "bracket_highlighter.clone_locations" if clone_view else "bracket_highlighter.locations"
+        regions_key = "bracket_highlighter.regions"
+        locations_key = "bracket_highlighter.locations"
         highlight_regions = self.view.settings().get(regions_key, [])
         if highlight_regions is not None:
             for region_key in highlight_regions:
@@ -547,7 +536,7 @@ class BhRegion(object):
         icon_type = "no_icon"
         open_icon_type = "no_icon"
         close_icon_type = "no_icon"
-        if not self.no_multi_select_icons or not self.multi_select:
+        if self.gutter_icons and (not self.no_multi_select_icons or not self.multi_select):
             icon_type = "small_icon" if self.view.line_height() < 16 else "icon"
             open_icon_type = "small_open_icon" if self.view.line_height() < 16 else "open_icon"
             close_icon_type = "small_close_icon" if self.view.line_height() < 16 else "close_icon"

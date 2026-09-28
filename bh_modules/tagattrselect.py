@@ -5,7 +5,7 @@ Copyright (c) 2013 - 2016 Isaac Muse <isaacmuse@gmail.com>
 License: MIT
 """
 import sublime
-import BracketHighlighter.bh_plugin as bh_plugin
+from BracketHighlighter import bh_plugin
 from BracketHighlighter.bh_plugin import import_module
 tags = import_module("bh_modules.tags")
 
@@ -67,7 +67,7 @@ class SelectAttr(bh_plugin.BracketPluginCommand):
 
             while region is not None and region.b < self.left.end:
                 # Select closest attribute to the right of the selection
-                if(
+                if (
                     current_pt < region.b or
                     (
                         current_pt <= region.b and current_region.a >= region.a and not

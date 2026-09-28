@@ -5,6 +5,7 @@ Backrefs
 BoundInCode
 BracketHighligher
 BracketHighlighter
+CMFL
 CMake
 CSS
 CSSedit
@@ -28,6 +29,7 @@ Mar
 MdPopups
 MkDocs
 NONINFRINGEMENT
+OCaml
 OSX
 Offscreen
 PHP
@@ -40,7 +42,10 @@ SublimeBrackets
 SublimeTagmatcher
 Swappable
 TextMate
+Twemoji
+allowlist
 backticks
+blocklist
 bool
 boolean
 builtins

@@ -5,8 +5,8 @@ Copyright (c) 2013 - 2016 Isaac Muse <isaacmuse@gmail.com>
 License: MIT
 """
 from backrefs import bre
-import BracketHighlighter.bh_plugin as bh_plugin
-from BracketHighlighter.bh_logging import debug, log
+from . import bh_plugin
+from .bh_logging import debug, log
 from operator import itemgetter
 import sublime
 import sublime_plugin
@@ -14,7 +14,7 @@ import sublime_plugin
 BH_STYLE = "default"
 BH_ENABLED = True
 BH_LANG_LIST = []
-BH_LANG_FILTER = "blacklist"
+BH_LANG_FILTER = "blocklist"
 BH_FIND_SUB = "false"
 BH_SUB_BRACKET = "false"
 BH_COMPARE_MATCH = None
@@ -42,7 +42,7 @@ def exclude_bracket(enabled, filter_type, language_list, language):
     exclude = True
     if enabled:
         # Black list languages
-        if filter_type == 'blacklist':
+        if filter_type == 'blocklist':
             exclude = False
             if language is not None:
                 for item in language_list:
@@ -50,7 +50,7 @@ def exclude_bracket(enabled, filter_type, language_list, language):
                         exclude = True
                         break
         # White list languages
-        elif filter_type == 'whitelist':
+        elif filter_type == 'allowlist':
             if language is not None:
                 for item in language_list:
                     if language == item.lower():
@@ -131,7 +131,7 @@ def is_valid_definition(params, language):
     )
 
 
-class BracketDefinition(object):
+class BracketDefinition:
     """Normal bracket definition."""
 
     def __init__(self, bracket):
@@ -151,7 +151,7 @@ class BracketDefinition(object):
         self.ignore_string_escape = bracket.get("ignore_string_escape", BH_IGNORE_STRING_ESCAPE)
 
 
-class ScopeDefinition(object):
+class ScopeDefinition:
     """Scope bracket definition."""
 
     def __init__(self, bracket):
@@ -178,7 +178,7 @@ class ScopeDefinition(object):
             self.enabled = False
 
 
-class SearchRules(object):
+class SearchRules:
     """Search rule object."""
 
     def __init__(self, brackets, scopes, string_escape_mode, outside_adj, block_cursor):
@@ -260,13 +260,21 @@ class SearchRules(object):
                 "SubBracket Pattern: (%s)\n" % ','.join(subnames) +
                 "    (Opening|Closing): (?:%s)\n" % '|'.join(sub_find_regex)
             )
-            self.sub_pattern = bre.compile_search("(?:%s)" % '|'.join(sub_find_regex), bre.MULTILINE | bre.IGNORECASE)
-            self.pattern = bre.compile_search("(?:%s)" % '|'.join(find_regex), bre.MULTILINE | bre.IGNORECASE)
+            fail = False
+            try:
+                self.sub_pattern = bre.compile_search(
+                    "(?:%s)" % '|'.join(sub_find_regex), bre.MULTILINE | bre.IGNORECASE
+                )
+                self.pattern = bre.compile_search("(?:%s)" % '|'.join(find_regex), bre.MULTILINE | bre.IGNORECASE)
+            except Exception as e:
+                log(e)
+                fail = True
             if (
+                fail or
                 self.sub_pattern.groups != len(sub_find_regex) or
                 self.pattern.groups != len(find_regex)
             ):
-                if self.sub_pattern.groups != len(sub_find_regex):
+                if not fail and self.sub_pattern.groups != len(sub_find_regex):
                     log(
                         BRACKET_ERROR % (
                             len(sub_find_regex),
@@ -275,7 +283,7 @@ class SearchRules(object):
                             "(?:%s)" % '|'.join(sub_find_regex)
                         )
                     )
-                if self.pattern.groups != len(find_regex):
+                if not fail and self.pattern.groups != len(find_regex):
                     log(
                         BRACKET_ERROR % (
                             len(find_regex),
